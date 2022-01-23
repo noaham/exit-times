@@ -58,6 +58,13 @@ function mousePressed() {
             grid[i][j].checkIfClicked();
         }
     }
+
+    // testing increasing the number of dots
+    // console.log(mouseX < 10 && mouseY < 10)
+    // if (mouseX < 10 && mouseY < 10) {
+    //     g++;
+    // }
+    // console.log(g)
 }
 
 function calculateExitTimes() {
