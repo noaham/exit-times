@@ -26,16 +26,20 @@ class Dot {
             // ...Then mouse is in circle...
             // ...Therefore check if already 'on' or not
             if (this.on) {
+                this.on = false;
+                updateCalculations();
                 this.col = color(255);
                 this.textContent = "";
                 this.on = false;
             } else {
+                this.on = true;
+                updateCalculations();
                 this.col = color(255, 0, 200);
                 fill(255, 10, 0);
                 this.textContent = this.n;
                 this.on = true;
             }
-            updateCalculations();
+            
         }
     }
 }
