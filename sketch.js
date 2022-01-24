@@ -16,6 +16,8 @@ let g = 6;
 // Circle diameter
 let d = 32;
 
+let region = []; // the collection of "on" states.
+
 function setup() {
     createCanvas(450, 450);
     cols = g;
@@ -33,7 +35,7 @@ function setup() {
             let randInt = floor(random(1, cols * rows));
 
             // Add each dot to grid array, passing its position, diameter, and a number
-            grid[i][j] = new Dot(cx, cy, d, randInt);
+            grid[i][j] = new Dot(cx, cy, d, 0);
         }
     }
 }
@@ -70,16 +72,26 @@ function mousePressed() {
 function calculateExitTimes() {
     // Loop through grid to find which dots are on
     // place the "on" dots into region
-    region = [];
+    regionList = [];
     for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
-            if (grid[i][j].is_on) {
-                region.push(grid[i][j]);
+            if (grid[i][j].on) {
+                regionList.push(new State(i,j));
             }
         }
     }
+
+    let region = new Region(regionList);
     // return the exit time values. This is a dictionary
     // with keys [i,j] and values numbers that are the
     // exit time for the dot (i,j)
     return exit_times(region)
+}
+
+function updateCalculations () {
+    let times = calculateExitTimes();
+    for (const [p,time] of times) {
+        grid[p[0]][p[1]].n = time;
+        grid[p[0]][p[1]].textContent = time;
+    }
 }

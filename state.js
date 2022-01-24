@@ -93,7 +93,7 @@ class Region {
         }
     }
     
-    Pmatrix () {
+    pMatrix () {
         let P = [];
         for (let i = 0; i < this.states.length; i++) {
             let row = [];
@@ -109,22 +109,25 @@ class Region {
         return math.matrix(P);
     }
     
-    Laplacian () {
-        return math.subtract(this.Pmatrix(),math.identity(this.states.length))
+    laplacian () {
+        return math.subtract(this.pMatrix(),math.identity(this.states.length));
     }
 }
 
 function exit_times (region) {
-    let L = region.Laplacian();
+    if (region.states.length == 0) {
+        return new Map();
+    }
+    let L = region.laplacian();
     let c = [];
     for (let i = 0; i < region.states.length; i++) {
         c[i] = -1;
     }
     let e =  math.multiply(math.inv(L),c);
-    let times = {};
+    let times = new Map();
     for (const state of region.states) {
         let state_index = region.index(state);
-        times[[state.x,state.y]] = e.get([state_index]);
+        times.set([state.x,state.y], e.get([state_index]));
     }
     return times;
 }
