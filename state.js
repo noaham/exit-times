@@ -99,9 +99,9 @@ class Region {
             let row = [];
             for (let j = 0; j < this.states.length; j++) {
                 if (this.states[i].is_neigh(this.states[j])) {
-                    row[j] = 1/4;
+                    row[j] = math.fraction('1/4');
                 } else {
-                    row[j] = 0;
+                    row[j] = math.fraction('0');
                 }
             }
             P[i] = row;
@@ -119,6 +119,7 @@ function exit_times (region) {
         return new Map();
     }
     let L = region.laplacian();
+
     let c = [];
     for (let i = 0; i < region.states.length; i++) {
         c[i] = -1;
@@ -131,3 +132,5 @@ function exit_times (region) {
     }
     return times;
 }
+
+

@@ -91,7 +91,9 @@ function calculateExitTimes() {
 function updateCalculations () {
     let times = calculateExitTimes();
     for (const [p,time] of times) {
-        grid[p[0]][p[1]].n = time;
-        grid[p[0]][p[1]].textContent = time;
+        console.log(time);
+        console.log(time.toFraction());
+        grid[p[0]][p[1]].n = time.toFraction();
+        grid[p[0]][p[1]].textContent = time.toFraction();
     }
 }
