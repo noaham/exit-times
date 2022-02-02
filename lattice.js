@@ -60,6 +60,22 @@ class ArrayMap {
     }
 }
 
+// functions to compute heatmap colours
+function heatMapColorforValue(value){
+    // value must be between zero and one
+    // thanks: https://stackoverflow.com/a/27263918
+    var h = Math.floor((1.0 - value) * 240)
+    return "hsl(" + h + ", 100%, 50%)";
+}
+
+function timesToColourMap(t, times) {
+    let maxt = Math.max.apply(Math, times)+1;
+    let mint = Math.min.apply(Math, times)-1;
+    let h = (t-mint)/(maxt-mint);
+    return heatMapColorforValue(h);
+
+}
+
 
 // This class sets up the mathematical aspects of an infinte lattice
 // with a selected region.
@@ -69,6 +85,7 @@ class Lattice {
         // always initialised empty
         this.region = [];
         this.times = [];
+        this.colours = [];
     }
 
     in_region(p) {
@@ -139,6 +156,9 @@ class Lattice {
     update() {
         // update the exit times
         this.times = this.exit_times();
+        if (heatOption == true) {
+            this.colours == this.compute_colours();
+        }
     }
 
     pMatrix() {
@@ -185,7 +205,6 @@ class Lattice {
             let p_index = indexInArray(this.region,p);
             times[p_index] = e.get([p_index]);
         }
-        console.log(this.pMatrix());
         return times;
     }
 
@@ -197,80 +216,25 @@ class Lattice {
             return 0;
         }
     }
-}
 
-function odd_floor (n) {
-    // computes the largest odd number smaller than n
-    return 2*Math.floor((n - 1)/2) + 1
-}
+    compute_colours() {
+        // calculate a map of colours, one for each point in region
+        for (let i = 0; i < this.times.length; i++) {
+            this.colours[i] = timesToColourMap(this.times[i],this.times)
+        }
+    }
 
-function odd_ceil (n) {
-    // computes the smallest odd number larger than n
-    return 2*Math.ceil((n - 1)/2) + 1
-}
-
-function firstGrid (vis,cs) {
-    // the top left coordinate of the first grid square
-    let g = odd_ceil(vis,cs);
-    let grid_size = cs/vis;
-    let overhang = (cs-grid_size*(g-2))/2;
-    let start_coord = overhang - grid_size;
-    return start_coord;
-}
-
-function firstCentre (vis,cs) {
-    // given a number of grid squares visible (vis), calculate the
-    // coordinate (fcenre,fcentre) that is the centre of the first
-    // grid square.
-    let g = odd_ceil(vis,cs);
-    let grid_size = cs/vis;
-    let overhang = (cs-grid_size*(g-2))/2;
-    let start_coord = overhang - grid_size;
-    let fcentre = (start_coord+overhang)/2;
-    return fcentre
-}
-
-function displayLattice (lattice,
-                         vis,
-                         dfrac,
-                         cs,
-                        ) {
-    // displays a lattice.
-    //     lattice: a lattice object
-    //     vis: the number of grid squares in the viewer
-    //     dfrac: ratio of circle diameter to grid square size
-    //     cs: the canvas size
-
-    // the size of each grid square
-    let grid_size = cs/vis;
-    // g-2 is the number of full dots on screen
-    let g = odd_ceil(vis);
-
-    // we also calculate the coordinates of the centre of the first dot
-    let fcentre = firstCentre(vis,cs);
-    let maxij = (g-1)/2;
-    
-    for (let row = 0; row < g; row++) {
-        for (let col = 0; col < g; col++) {
-            let p = [row-maxij,-col+maxij];
-
-            let x = fcentre + row*grid_size;
-            let y = fcentre + col*grid_size;
-
-            let colour = color(255);
-            let textContent = "";
-            
-            if (lattice.in_region(p)) {
-                colour = color(255,0,200);
-                textContent = lattice.get_time(p).toFraction();
-            }
-            
-            noStroke();
-            fill(colour);
-            circle(x, y, grid_size*dfrac);
-            fill(0);
-            textAlign(CENTER, CENTER);
-            text(textContent, x, y);
+    get_colour(p) {
+        if (this.colours.length != this.region.length) {
+            this.exit_times();
+            this.compute_colours();
+        }
+        let index = indexInArray(this.region,p);
+        if (index > -1) {
+            return this.colours[index];
+        } else {
+            return 0;
         }
     }
 }
+
