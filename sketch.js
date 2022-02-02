@@ -1,7 +1,7 @@
 function setup() {
     // initial values
     cs = [600,800];
-    dfrac = 2/3;
+    dfrac = 9.5/10;
     vis = 5;
     topleft = [0,0];
 
@@ -10,7 +10,18 @@ function setup() {
     createCanvas(cs[0], cs[1]);
   
     slider = createSlider(1, 100, vis, 0);
-    slider.size(400,40);  
+    slider.size(400,40);
+
+    checkbox = createCheckbox('Heatmap?', false);
+
+    radioText = createRadio();
+    radioText.option('empty', 'No text');
+    radioText.option('coord', 'Coordinates');
+    radioText.option('frac', 'Fractions');
+    radioText.style('width', '30px');
+    textAlign(CENTER);
+    
+    
 
     lattice = new Lattice();
 }
@@ -18,6 +29,9 @@ function setup() {
 function draw() {
     background(0);
     vis = slider.value();
+    textOption = radioText.value()
+    heatOption = checkbox.checked()
+    
     updateDisplayConstants();
 
     // display the lattice
@@ -39,7 +53,7 @@ function mousePressed() {
         if (dist(mouseX, mouseY, centreX, centreY) < dfrac*grid_size/2) {
             // find lattice coords
             let i = start_ij[0]+col;
-            let j = start_ij[1]+row;
+            let j = start_ij[1]-row;
             let p = [i,j];
 
             // add or remove point from region

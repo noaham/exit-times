@@ -60,6 +60,22 @@ class ArrayMap {
     }
 }
 
+// functions to compute heatmap colours
+function heatMapColorforValue(value){
+    // value must be between zero and one
+    // thanks: https://stackoverflow.com/a/27263918
+    var h = Math.floor((1.0 - value) * 240)
+    return "hsl(" + h + ", 100%, 50%)";
+}
+
+function timesToColourMap(t, times) {
+    let maxt = Math.max.apply(Math, times)+1;
+    let mint = Math.min.apply(Math, times)-1;
+    let h = (t-mint)/(maxt-mint);
+    return heatMapColorforValue(h);
+
+}
+
 
 // This class sets up the mathematical aspects of an infinte lattice
 // with a selected region.
@@ -69,6 +85,7 @@ class Lattice {
         // always initialised empty
         this.region = [];
         this.times = [];
+        this.colours = [];
     }
 
     in_region(p) {
@@ -139,6 +156,9 @@ class Lattice {
     update() {
         // update the exit times
         this.times = this.exit_times();
+        if (heatOption == true) {
+            this.colours == this.compute_colours();
+        }
     }
 
     pMatrix() {
@@ -192,6 +212,26 @@ class Lattice {
         let index = indexInArray(this.region,p);
         if (index > -1) {
             return this.times[index];
+        } else {
+            return 0;
+        }
+    }
+
+    compute_colours() {
+        // calculate a map of colours, one for each point in region
+        for (let i = 0; i < this.times.length; i++) {
+            this.colours[i] = timesToColourMap(this.times[i],this.times)
+        }
+    }
+
+    get_colour(p) {
+        if (this.colours.length != this.region.length) {
+            this.exit_times();
+            this.compute_colours();
+        }
+        let index = indexInArray(this.region,p);
+        if (index > -1) {
+            return this.colours[index];
         } else {
             return 0;
         }

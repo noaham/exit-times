@@ -6,6 +6,10 @@ let dfrac; // float, this is the fraction of each unit diameter is
 let vis; // float, the number of grid squares visible in a row (fractional)
 let topleft; // coordinates of the top left.
 
+// option for display in circle
+let textOption = 'empty' // can be 'coord', 'frac' or 'empty'
+let heatOption = false // display colour as heat map
+
 // constants that get calculated and updated
 let grid_size; // =cs/vis, size of each grid square
 let visY; // number of grid squares visible vertically
@@ -42,17 +46,32 @@ function displayLattice (lattice) {
     
     for (let row = 0; row < gy; row++) {
         for (let col = 0; col < gx; col++) {
-            let p = [start_ij[0]+col,start_ij[1]+row];
+            let p = [start_ij[0]+col,start_ij[1]-row];
 
             let x = firstCentreCoord[0] + col*grid_size;
             let y = firstCentreCoord[1] + row*grid_size;
 
             let colour = color(255);
-            let textContent = "";
+
+            let textContent = ""
+            if (textOption == "coord") {
+                textContent = [start_ij[0]+col,start_ij[1]-row];
+            }
+            
             
             if (lattice.in_region(p)) {
-                colour = color(255,0,200);
-                textContent = lattice.get_time(p).toFraction();
+                switch (heatOption) {
+                case true:
+                    colour = lattice.get_colour(p);
+                    break;
+                case false:
+                    colour = color(255,0,200);
+                    break;
+                }
+                
+                if (textOption == 'frac') {
+                    textContent = lattice.get_time(p).toFraction();
+                }
             }
             
             noStroke();
