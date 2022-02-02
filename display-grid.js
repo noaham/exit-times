@@ -4,7 +4,7 @@
 let cs; // canvas size, array [x,y]  
 let dfrac; // float, this is the fraction of each unit diameter is
 let vis; // float, the number of grid squares visible in a row (fractional)
-let topleft; // coordinates of the top left.
+let offset; // ammount coordinates should be offset.
 
 // option for display in circle
 let textOption = 'empty' // can be 'coord', 'frac' or 'empty'
@@ -15,6 +15,9 @@ let grid_size; // =cs/vis, size of each grid square
 let visY; // number of grid squares visible vertically
 let gx; // odd_ceil(vis), whole number of dots to display in a row (some not visible)
 let gy; // whole number of dots to display in a col
+let firstVisGrid; // array [i,j] lattice coords of first grid square visible
+
+
 let overhang; // array [x,y], how much of the first grid square is on the canvas
 let firstGridCoord; // array [x,y], coords of top left of top left grid square
 let firstCentreCoord; // array [x,y], coords of top left centre
@@ -26,27 +29,49 @@ function odd_floor (n) {
 }
 
 function odd_ceil (n) {
-    // computes the smallest odd number larger than n
-    return 2*Math.ceil((n - 1)/2) + 1
+    // computes the smallest odd number strictly larger than n
+    let ceil = 2*Math.ceil((n - 1)/2) + 1;
+    if (ceil == n) {
+        return n+2;
+    }
+    return ceil;
 }
 
+function offsetCoords(x,y) {
+    // given coordinates x,y in canvas, return the offset coordinates
+    return [x-offset[0],y-offset[1]];
+}
+
+let initShift;
 function updateDisplayConstants () {
     grid_size = cs[0]/vis;
     visY = cs[1]/grid_size;
-    gx = odd_ceil(vis);
-    gy = odd_ceil(visY);
-    overhang = [(cs[0]-grid_size*(gx-2))/2,(cs[1]-grid_size*(gy-2))/2];
-    firstGridCoord = [overhang[0]-grid_size,overhang[1]-grid_size];
-    firstCentreCoord = [(firstGridCoord[0]+overhang[0])/2,(firstGridCoord[1]+overhang[1])/2];
-    start_ij = [-(gx-1)/2,(gy-1)/2];
+    gx = Math.ceil(vis)+1;
+    gy = Math.ceil(visY)+1;
+    firstCentreCoord = [Math.round(offset[0]/grid_size)*grid_size,
+                      Math.round(offset[1]/grid_size)*grid_size
+                     ];
+    firstVisGrid = [Math.round(offset[0]/grid_size),
+                    -Math.round(offset[1]/grid_size)
+                   ];
+
+    // initShift = [(cs[0]-grid_size*(gx-2))/2,(cs[1]-grid_size*(gy-2))/2];
+    // let overhangX = Math.ceil((offset[0]-initShift[0])/grid_size)*grid_size + initShift[0] - offset[0];
+    // let overhangY = Math.ceil((offset[1]-initShift[1])/grid_size)*grid_size + initShift[1] - offset[1];    
+    // overhang = [overhangX,overhangY];
+
+    // firstGridCoord = [overhang[0]-grid_size,overhang[1]-grid_size];
+    // firstCentreCoord = [(firstGridCoord[0]+overhang[0])/2,(firstGridCoord[1]+overhang[1])/2];
+    // start_ij = [-(gx-1)/2,(gy-1)/2];
 }
 
 function displayLattice (lattice) {
     // displays a lattice.
+    translate(-offset[0],-offset[1]);
     
     for (let row = 0; row < gy; row++) {
         for (let col = 0; col < gx; col++) {
-            let p = [start_ij[0]+col,start_ij[1]-row];
+            let p = [firstVisGrid[0]+col,firstVisGrid[1]-row];
 
             let x = firstCentreCoord[0] + col*grid_size;
             let y = firstCentreCoord[1] + row*grid_size;
@@ -55,7 +80,7 @@ function displayLattice (lattice) {
 
             let textContent = ""
             if (textOption == "coord") {
-                textContent = [start_ij[0]+col,start_ij[1]-row];
+                textContent = p;
             }
             
             
@@ -82,4 +107,6 @@ function displayLattice (lattice) {
             text(textContent, x, y);
         }
     }
+    translate(offset[0],offset[1]);
 }
+
