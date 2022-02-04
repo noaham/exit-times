@@ -10,6 +10,7 @@ let s; // the scale
 // option for display in circle
 let textOption = 'empty' // can be 'coord', 'frac' or 'empty'
 let heatOption = false // display colour as heat map
+let autocomputeOption = false; // autocompute on each click?
 
 // constants that get calculated and updated
 let grid_size; // =100/vis, size of each grid square
@@ -90,14 +91,18 @@ function displayLattice (lattice) {
             if (lattice.in_region(p)) {
                 switch (heatOption) {
                 case true:
-                    colour = lattice.get_colour(p);
+                    if (lattice.in_computed(p)) {
+                        colour = lattice.get_colour(p);
+                    } else {
+                        colour = color(150);
+                    }
                     break;
                 case false:
                     colour = color(255,0,200);
                     break;
                 }
                 
-                if (textOption == 'frac') {
+                if (textOption == 'frac' && lattice.in_computed(p)) {
                     textContent = lattice.get_time(p).toFraction();
                 }
             }
