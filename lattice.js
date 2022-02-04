@@ -86,18 +86,26 @@ class Lattice {
         this.region = [];
         this.times = [];
         this.colours = [];
+        this.computedPoints = [];
     }
 
     in_region(p) {
         // return true if p is in the selected region
         return inArray(this.region,p);
     }
+
+    in_computed(p) {
+        // return true if p is in the computed region
+        return inArray(this.computedPoints,p);
+    }
     
     add(p) {
         // add a point p = [i,j] (ignore if already in region)
         if (!(this.in_region(p))) {
             this.region.push(p);
-            this.update()
+            if (autocomputeOption) {
+                this.update();
+            }
         }
     }
 
@@ -106,14 +114,18 @@ class Lattice {
         if (this.in_region(p)) {
             const index = indexInArray(this.region,p);
             this.region.splice(index, 1);
-            this.update()
+            if (autocomputeOption) {
+                this.update();
+            }
         }
     }
 
     change_region(A) {
         // completely change region to A
         this.region = A;
-        this.update();
+        if (autocomputeOption) {
+            this.update();
+        }
     }
     
     north(p) {
@@ -157,8 +169,13 @@ class Lattice {
         // update the exit times
         this.times = this.exit_times();
         if (heatOption == true) {
-            this.colours == this.compute_colours();
+            this.compute_colours();
         }
+        this.region_update();
+    }
+
+    region_update () {
+        this.computedPoints = [...this.region];
     }
 
     pMatrix() {
@@ -225,7 +242,7 @@ class Lattice {
     }
 
     get_colour(p) {
-        if (this.colours.length != this.region.length) {
+        if (this.colours.length != this.computedPoints.length) {
             this.exit_times();
             this.compute_colours();
         }

@@ -10,6 +10,10 @@ function centreOffset () {
     offset = [0,0];
 }
 
+function updateLattice () {
+    lattice.update();
+}
+
 function setup() {
     // initial values
     cs = [980,620];
@@ -17,6 +21,8 @@ function setup() {
     vis = 1;
     s = 1;
     offset = [0,0];
+
+    lattice = new Lattice();
 
     updateDisplayConstants();
     
@@ -34,9 +40,11 @@ function setup() {
 
     button = createButton('Centre');
     button.mousePressed(centreOffset);
-    
 
-    lattice = new Lattice();
+    autocomputeCheckbox = createCheckbox('Autocompute?', false);
+    
+    computeButton = createButton('Compute exit times');
+    computeButton.mousePressed(updateLattice);
 }
 
 function draw() {
@@ -44,6 +52,7 @@ function draw() {
 
     textOption = radioText.value()
     heatOption = checkbox.checked()
+    autocomputeOption = autocomputeCheckbox.checked()
 
     if (mouseIsPressed && mouseInCanvas() && mousePressedInCanvas) {
         offset = [offset[0] + s*movedX,offset[1] - s*movedY]
