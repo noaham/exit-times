@@ -18,6 +18,13 @@ let gx; // whole number of dots to display to the right/left of the middle in a 
 let gy; // whole number of dots to display to above/below the middle in a column
 let midGrid; // array [i,j] that gives coordinates of the dot closest to the middle
 
+// definition of colours
+let offColour; // colour of dots that are off
+let onColour; // colour of dots that are on when no heatmap
+let notCompColour; // colour of dots that are on but not computed
+// these must be set in sketch.js
+
+
 function updateDisplayConstants () {
     grid_size = 100/vis;
 
@@ -80,7 +87,7 @@ function displayLattice (lattice) {
 
             let [cx,cy] = latticeToCanvas(x,y); 
 
-            let colour = color(255);
+            let colour = offColour;
 
             let textContent = ""
             if (textOption == "coord") {
@@ -94,11 +101,11 @@ function displayLattice (lattice) {
                     if (lattice.in_computed(p)) {
                         colour = lattice.get_colour(p);
                     } else {
-                        colour = color(150);
+                        colour = notCompColour;
                     }
                     break;
                 case false:
-                    colour = color(255,0,200);
+                    colour = onColour;
                     break;
                 }
                 

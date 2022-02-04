@@ -22,6 +22,11 @@ function setup() {
     s = 1;
     offset = [0,0];
 
+    // definition of colours
+    offColour = color(255); // colour of dots that are off
+    onColour = color(255,0,200); // colour of dots that are on when no heatmap
+    notCompColour = color(150,150,150); // colour of dots that are on but not computed
+
     lattice = new Lattice();
 
     updateDisplayConstants();

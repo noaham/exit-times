@@ -243,10 +243,9 @@ class Lattice {
 
     get_colour(p) {
         if (this.colours.length != this.computedPoints.length) {
-            this.exit_times();
-            this.compute_colours();
+            this.update();
         }
-        let index = indexInArray(this.region,p);
+        let index = indexInArray(this.computedPoints,p);
         if (index > -1) {
             return this.colours[index];
         } else {
