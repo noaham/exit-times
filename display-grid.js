@@ -8,7 +8,7 @@ let offset; // ammount coordinates should be offset.
 let s; // the scale
 
 // option for display in circle
-let textOption = 'coord' // can be 'coord', 'frac' or 'empty'
+let textOption = 'empty' // can be 'coord', 'frac' or 'empty'
 let heatOption = false // display colour as heat map
 
 // constants that get calculated and updated
@@ -27,38 +27,57 @@ function updateDisplayConstants () {
     
 }
 
-function tf() {
-    translate(cs[0]/2,cs[1]/2);
-    scale(1/s)
-    
-    applyMatrix(1,0,0,-1,0,0); // flip the y-coords
-    translate(offset[0],offset[1]);
+function latticeToCanvas () {
+    // given x,y coords in the lattice return coords on canvas
+    // arguments can be passed as x,y floats, or as a length two array
+    let x;
+    let y;
+    if (arguments.length == 1) {
+        [x,y] = arguments[0];
+    } else if (arguments.length == 2) {
+        x = arguments[0];
+        y = arguments[1];
+    }
+    let cX =  x/s + offset[0]/s + cs[0]/2;
+    let cY = -y/s - offset[1]/s + cs[1]/2;
+
+    return [cX,cY];
 }
 
-function inv_tf() {
-    translate(-offset[0],-offset[1]);
-    applyMatrix(1,0,0,-1,0,0); // flip the y-coords
-    
-    scale(s);
-    translate(-cs[0]/2,-cs[1]/2);
+function canvasToLattice () {
+    // given x,y coords in the canvas return coords on the lattice
+    // arguments can be passed as x,y floats, or as a length two array
+    let x,y;
+    if (arguments.length == 1) {
+        [x,y] = arguments[0];
+    } else if (arguments.length == 2) {
+        x = arguments[0];
+        y = arguments[1];
+    }
+    let lX =  s*x - offset[0] - s*cs[0]/2;
+    let lY = -s*y - offset[1] + s*cs[1]/2;
+
+    return [lX,lY];
 }
-
-
 
 function displayLattice (lattice) {
-    tf();
-    
     // displays a lattice.
 
-    rowRange = [midGrid[1]-Math.floor(s*(gy)),midGrid[1]+Math.ceil(s*(gy))]
-    colRange = [midGrid[0]-Math.floor(s*(gx)),midGrid[0]+Math.ceil(s*(gx))]
+    rowRange = [midGrid[1]-Math.floor(s*(gy)),
+                midGrid[1]+Math.ceil(s*(gy))
+               ];
+    colRange = [midGrid[0]-Math.floor(s*(gx)),
+                midGrid[0]+Math.ceil(s*(gx))
+               ];
     
     for (let row = rowRange[0]; row < rowRange[1]; row++) {
         for (let col = colRange[0]; col < colRange[1]; col++) {
             let p = [col,row];
 
-            let x = col*grid_size;
+            let x = col*grid_size; // lattice coords
             let y = row*grid_size;
+
+            let [cx,cy] = latticeToCanvas(x,y); 
 
             let colour = color(255);
 
@@ -85,17 +104,14 @@ function displayLattice (lattice) {
             
             noStroke();
             fill(colour);
-            circle(x, y, grid_size*dfrac);
+            circle(cx, cy, grid_size*dfrac/s);
             fill(0);
             textAlign(CENTER, CENTER);
-            
-            translate(x,y);
-            applyMatrix(1,0,0,-1,0,0); 
-            text(textContent, 0, 0);
-            applyMatrix(1,0,0,-1,0,0); 
-            translate(-x,-y);
+            textSize(24)
+            scale(1/s);
+            text(textContent, s*cx, s*cy);
+            scale(s);
         }
     }
-    inv_tf();
 }
 
